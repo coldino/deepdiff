@@ -2,7 +2,7 @@ from ordered_set import OrderedSet
 from deepdiff.helper import strings, numbers
 
 
-DEFAULT_SIGNIFICANT_DIGITS_WHEN_IGNORE_NUMERIC_TYPES = 55
+DEFAULT_SIGNIFICANT_DIGITS_WHEN_IGNORE_NUMERIC_TYPES = 12
 
 
 class Base:
@@ -10,7 +10,7 @@ class Base:
     strings = strings
 
     def get_significant_digits(self, significant_digits, ignore_numeric_type_changes):
-        if ignore_numeric_type_changes and not significant_digits:
+        if ignore_numeric_type_changes and significant_digits is None:
             significant_digits = DEFAULT_SIGNIFICANT_DIGITS_WHEN_IGNORE_NUMERIC_TYPES
         if significant_digits is not None and significant_digits < 0:
             raise ValueError(

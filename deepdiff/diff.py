@@ -556,8 +556,8 @@ class DeepDiff(ResultDict, Base):
     def __diff_numbers(self, level):
         """Diff Numbers"""
 
-        if self.significant_digits is not None and isinstance(level.t1, (
-                float, complex, Decimal)):
+        if self.significant_digits is not None and (isinstance(level.t1, (float, complex, Decimal))
+                or isinstance(level.t2, (float, complex, Decimal))):
             # Bernhard10: I use string formatting for comparison, to be consistent with usecases where
             # data is read from files that were previousely written from python and
             # to be consistent with on-screen representation of numbers.
@@ -566,8 +566,8 @@ class DeepDiff(ResultDict, Base):
             # Note that abs(3.25-3.251) = 0.0009999999999998899 < 0.001
             # Note also that "{:.3f}".format(1.1135) = 1.113, but "{:.3f}".format(1.11351) = 1.114
             # For Decimals, format seems to round 2.5 to 2 and 3.5 to 4 (to closest even number)
-            t1_s = ("{:.%sf}" % self.significant_digits).format(level.t1)
-            t2_s = ("{:.%sf}" % self.significant_digits).format(level.t2)
+            t1_s = number_string_for_compare(level.t1, self.significant_digits)
+            t2_s = number_string_for_compare(level.t2, self.significant_digits)
 
             # Special case for 0: "-0.00" should compare equal to "0.00"
             if set(t1_s) <= set("-0.") and set(t2_s) <= set("-0."):
@@ -706,6 +706,17 @@ class DeepDiff(ResultDict, Base):
         else:
             result = dict(self)
         return result
+
+
+def number_string_for_compare(value, digits):
+    if isinstance(value, Decimal):
+        result = str(value.quantize(Decimal(10)**-digits))
+        print(f'Decimal: value={value}, digits={digits} = {result}')
+        return result
+
+    result = ("{:.%sf}" % digits).format(value)
+    print(f'number: value={value}, digits={digits} = {result}')
+    return result
 
 
 if __name__ == "__main__":  # pragma: no cover
